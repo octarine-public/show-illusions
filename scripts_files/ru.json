@@ -1,0 +1,18 @@
+{
+	"State": "Состояние",
+	"Color": "Цвет",
+	"Size": "Размер",
+	"Distance": "Дистация",
+	"Draw type": "Режим рисования",
+	"Circle": "Круг",
+	"Images": "Изображение",
+	"Reset": "Сбросить",
+	"Invisible illusion": "Невидимые иллюзии",
+	"Settings": "Настройки",
+	"Show Illusions": "Отображение иллюзий",
+	"Setting up invisible illusions": "Настройка невидимых иллюзий",
+	"Clones": "Клоны",
+	"Illusion": "Иллюзии",
+	"Clones color (e.x Meepo, Vengeful spirit)": "Цвет клонов (пр. Meepo, Vengeful spirit)",
+	"The distance from you to the illusion\nat which the illusion becomes invisible": "Дистанция от вас до иллюзии\nпри котором иллюзия станет невидимой"
+}
