@@ -25,7 +25,7 @@ export default class MenuManager {
 		this.ColorIllusion = menu.AddColorPicker("Illusion", new Color(0, 0, 160))
 		this.ColorCone = menu.AddColorPicker("Clones", new Color(161, 0, 255), "Clones color (e.x Meepo, Vengeful spirit)")
 
-		this.HiddenIllusion = menu.AddToggle("Invisible illusion", true)
+		this.HiddenIllusion = menu.AddToggle("Hide illusions", false)
 
 		this.HiddenIllusionTree = menu.AddNode("Settings", undefined, "Setting up invisible illusions")
 		this.Size = this.HiddenIllusionTree.AddSlider("Size", 33, 30, 200)
