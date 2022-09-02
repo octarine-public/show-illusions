@@ -48,7 +48,7 @@ export default class IllusionsManager {
 
 			if (HiddenIllusion) {
 
-				if (myHero.Distance2D(Illusion) <= Distance) {
+				if (myHero.Distance(Illusion) <= Distance) {
 					if (!this.DrawInteraction.Has(Illusion) && Illusion)
 						this.DrawInteraction.Set(Illusion, this.menu.IMenu)
 					Illusion.CustomDrawColor = [Color, RenderMode_t.kRenderNone]
