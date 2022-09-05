@@ -1,5 +1,5 @@
-import { EntityX, HeroX, RuneX, UnitX } from "immortal-core/Imports"
-import { ArrayExtensions, DOTAGameUIState_t, GameState, LifeState_t, RenderMode_t } from "wrapper/Imports"
+import { EntityX, HeroX, RuneX, UnitX } from "github.com/octarine-private/immortal-core/Imports"
+import { ArrayExtensions, DOTAGameUIState_t, GameState, LifeState_t, RenderMode_t } from "github.com/octarine-public/wrapper/wrapper/Imports"
 import DrawInteraction, { MapDrawable } from "../Drawable/Index"
 import MenuManager from "./Menu"
 

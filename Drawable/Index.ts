@@ -1,4 +1,4 @@
-import { UnitX } from "immortal-core/Imports"
+import { UnitX } from "github.com/octarine-private/immortal-core/Imports"
 import BaseDrawable, { IMenu } from "./Base"
 
 export const MapDrawable = new Map<any, BaseDrawable>()

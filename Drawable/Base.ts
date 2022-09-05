@@ -1,4 +1,4 @@
-import { Color, GUIInfo, RendererSDK, Vector2, Vector3 } from "wrapper/Imports"
+import { Color, GUIInfo, RendererSDK, Vector2, Vector3 } from "github.com/octarine-public/wrapper/wrapper/Imports"
 import { DrawTypeIllusion } from "../Enum/DrawType"
 
 export interface IMenu {
