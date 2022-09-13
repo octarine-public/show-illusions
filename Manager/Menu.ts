@@ -1,4 +1,4 @@
-import { Color, Menu } from "github.com/octarine-public/wrapper/wrapper/Imports"
+import { Color, Menu } from "github.com/octarine-public/wrapper/index"
 import { IMenu } from "../Drawable/Base"
 
 export default class MenuManager {

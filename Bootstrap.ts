@@ -1,5 +1,5 @@
-import { EventsX } from "github.com/octarine-private/immortal-core/Imports"
-import { EventsSDK } from "github.com/octarine-public/wrapper/wrapper/Imports"
+import { EventsX } from "github.com/octarine-private/immortal-core/index"
+import { EventsSDK } from "github.com/octarine-public/wrapper/index"
 import IllusionsManager from "./Manager/Main"
 import MenuManager from "./Manager/Menu"
 
