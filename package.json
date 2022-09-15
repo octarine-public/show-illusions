@@ -1,6 +1,7 @@
 {
+	"version": "2.0.0",
+	"main": "Bootstrap.ts",
 	"name": "show-illusions",
-	"version": "1.0.0",
 	"description": "Show Illusions",
 	"author": "SicdeX",
 	"devDependencies": {
