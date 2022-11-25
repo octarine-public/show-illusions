@@ -1,19 +1,22 @@
 import { UnitX } from "github.com/octarine-private/immortal-core/index"
-import BaseDrawable, { IMenu } from "./Base"
+
+import { BaseDrawable, IMenu } from "./Base"
 
 export const MapDrawable = new Map<any, BaseDrawable>()
 
-export default class DrawInteraction {
-
+export class DrawInteraction {
 	public Set(unit: UnitX, Menu: IMenu) {
 		const Key = this.KeyName(unit)
-		MapDrawable.set(Key, new BaseDrawable({
+		MapDrawable.set(
 			Key,
-			Menu,
-			IsVisible: unit.IsVisible,
-			PlayerColor: unit.PlayerColor,
-			Position: () => unit.Position,
-		}))
+			new BaseDrawable({
+				Key,
+				Menu,
+				IsVisible: unit.IsVisible,
+				PlayerColor: unit.PlayerColor,
+				Position: () => unit.Position
+			})
+		)
 	}
 
 	public Has(unit: UnitX) {
@@ -29,8 +32,7 @@ export default class DrawInteraction {
 	public Update(unit: UnitX, menu?: IMenu) {
 		const Key = this.KeyName(unit)
 		const getDraw = MapDrawable.get(Key)
-		if (getDraw === undefined)
-			return
+		if (getDraw === undefined) return
 		if (menu !== undefined) {
 			getDraw.OnUpdateMenu(menu)
 			return
