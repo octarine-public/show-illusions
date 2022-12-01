@@ -25,17 +25,24 @@ export class IllusionsManager {
 			!this.menu.HiddenIllusion.value ||
 			!GameState.IsConnected ||
 			GameState.UIState !== DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
-		)
+		) {
 			return
+		}
 
-		for (const [, data] of MapDrawable) data.OnDraw()
+		for (const [, data] of MapDrawable) {
+			data.OnDraw()
+		}
 	}
 
 	public OnPostDataUpdate() {
-		if (!GameState.IsConnected) return
+		if (!GameState.IsConnected) {
+			return
+		}
 
 		const myHero = this.MyHero
-		if (myHero === undefined) return
+		if (myHero === undefined) {
+			return
+		}
 
 		const Distance = this.menu.Distance.value
 		const Color = this.menu.ColorIllusion.SelectedColor
@@ -50,13 +57,16 @@ export class IllusionsManager {
 
 			if (HiddenIllusion) {
 				if (myHero.Distance(Illusion) <= Distance) {
-					if (!this.DrawInteraction.Has(Illusion) && Illusion)
+					if (!this.DrawInteraction.Has(Illusion) && Illusion) {
 						this.DrawInteraction.Set(Illusion, this.menu.IMenu)
+					}
 					Illusion.CustomDrawColor = [Color, RenderMode.None]
 					continue
 				}
 
-				if (this.DrawInteraction.Has(Illusion)) this.DrawInteraction.Delete(Illusion)
+				if (this.DrawInteraction.Has(Illusion)) {
+					this.DrawInteraction.Delete(Illusion)
+				}
 			}
 
 			Illusion.CustomDrawColor = !Illusion.IsClone
@@ -66,12 +76,16 @@ export class IllusionsManager {
 	}
 
 	public OnVisibilityChanged(unit: UnitX | RuneX) {
-		if (!(unit instanceof HeroX) || !this.IsValid(unit)) return
+		if (!(unit instanceof HeroX) || !this.IsValid(unit)) {
+			return
+		}
 		this.DrawInteraction.Update(unit)
 	}
 
 	public OnLifeStateChanged(entity: EntityX) {
-		if (!(entity instanceof HeroX) || !this.IsValid(entity)) return
+		if (!(entity instanceof HeroX) || !this.IsValid(entity)) {
+			return
+		}
 		switch (entity.LifeState) {
 			case LifeState.LIFE_DEAD:
 				this.DrawInteraction.Delete(entity)
@@ -81,16 +95,22 @@ export class IllusionsManager {
 	}
 
 	public OnEntityCreated(entity: EntityX) {
-		if (!(entity instanceof HeroX) || this.HasHero(entity)) return
+		if (!(entity instanceof HeroX) || this.HasHero(entity)) {
+			return
+		}
 		if (!entity.IsEnemy() && entity.IsMyHero) {
 			this.MyHero = entity
 			return
 		}
-		if (this.IsValid(entity)) this.Illusion.push(entity)
+		if (this.IsValid(entity)) {
+			this.Illusion.push(entity)
+		}
 	}
 
 	public OnEntityChanged(entity: EntityX) {
-		if (!(entity instanceof HeroX)) return
+		if (!(entity instanceof HeroX)) {
+			return
+		}
 
 		if (!this.IsValid(entity) || !entity.IsAlive) {
 			this.DrawInteraction.Delete(entity)
@@ -98,11 +118,15 @@ export class IllusionsManager {
 			return
 		}
 
-		if (!this.HasHero(entity)) this.Illusion.push(entity)
+		if (!this.HasHero(entity)) {
+			this.Illusion.push(entity)
+		}
 	}
 
 	public OnEntityDestroyed(entity: EntityX) {
-		if (!(entity instanceof HeroX)) return
+		if (!(entity instanceof HeroX)) {
+			return
+		}
 		if (entity.IsImportant && this.MyHero?.Equals(entity)) {
 			this.MyHero = undefined
 			return
@@ -116,7 +140,9 @@ export class IllusionsManager {
 	}
 
 	protected OnChangeMenu() {
-		for (const Illusion of this.Illusion) this.DrawInteraction.Update(Illusion, this.menu.IMenu)
+		for (const Illusion of this.Illusion) {
+			this.DrawInteraction.Update(Illusion, this.menu.IMenu)
+		}
 	}
 
 	protected HasHero(hero: HeroX) {

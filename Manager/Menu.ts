@@ -35,11 +35,7 @@ export class MenuManager {
 
 		this.HiddenIllusion = menu.AddToggle("Hide illusions", false)
 
-		this.HiddenIllusionTree = menu.AddNode(
-			"Settings",
-			undefined,
-			"Setting up invisible illusions"
-		)
+		this.HiddenIllusionTree = menu.AddNode("Settings", undefined, "Setting up invisible illusions")
 		this.Size = this.HiddenIllusionTree.AddSlider("Size", 33, 30, 200)
 		this.Opacity = this.HiddenIllusionTree.AddSlider("Opacity", 80, 10, 100)
 		this.Distance = this.HiddenIllusionTree.AddSlider(

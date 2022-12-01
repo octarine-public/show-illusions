@@ -32,7 +32,9 @@ export class DrawInteraction {
 	public Update(unit: UnitX, menu?: IMenu) {
 		const Key = this.KeyName(unit)
 		const getDraw = MapDrawable.get(Key)
-		if (getDraw === undefined) return
+		if (getDraw === undefined) {
+			return
+		}
 		if (menu !== undefined) {
 			getDraw.OnUpdateMenu(menu)
 			return

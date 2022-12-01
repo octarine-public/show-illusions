@@ -1,10 +1,4 @@
-import {
-	Color,
-	GUIInfo,
-	RendererSDK,
-	Vector2,
-	Vector3
-} from "github.com/octarine-public/wrapper/index"
+import { Color, GUIInfo, RendererSDK, Vector2, Vector3 } from "github.com/octarine-public/wrapper/index"
 
 import { DrawTypeIllusion } from "../Enum/DrawType"
 
@@ -43,10 +37,14 @@ export class BaseDrawable {
 	}
 
 	public OnDraw() {
-		if (!this.Menu.State || !this.IsVisible) return
+		if (!this.Menu.State || !this.IsVisible) {
+			return
+		}
 
 		const w2sPosition = RendererSDK.WorldToScreen(this.Position)
-		if (w2sPosition === undefined) return
+		if (w2sPosition === undefined) {
+			return
+		}
 
 		const Size = this.Menu.Size
 		const Opacity = (this.Menu.Opacity / 100) * 255
@@ -72,12 +70,7 @@ export class BaseDrawable {
 		}
 
 		RendererSDK.FilledCircle(position, vectorSize, Color.Yellow.SetA(Opacity))
-		RendererSDK.OutlinedCircle(
-			position,
-			vectorSize,
-			this.PlayerColor.SetA(Opacity),
-			GUIInfo.ScaleHeight(Size) / 15
-		)
+		RendererSDK.OutlinedCircle(position, vectorSize, this.PlayerColor.SetA(Opacity), GUIInfo.ScaleHeight(Size) / 15)
 	}
 
 	public OnUpdateMenu(menu: IMenu) {
