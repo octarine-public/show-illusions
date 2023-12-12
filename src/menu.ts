@@ -41,7 +41,7 @@ export class MenuManager {
 		this.HiddenIllusion = menu.AddToggle("Hide illusions", false)
 		this.HiddenIllusionTree = menu.AddNode(
 			"Settings",
-			undefined,
+			"menu/icons/settings.svg",
 			"Setting up invisible illusions"
 		)
 		this.Size = this.HiddenIllusionTree.AddSlider("Size", 33, 30, 200)
