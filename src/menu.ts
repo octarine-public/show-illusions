@@ -7,6 +7,7 @@ import {
 } from "github.com/octarine-public/wrapper/index"
 
 export class MenuManager {
+	public readonly Glow: Menu.Toggle
 	public readonly State: Menu.Toggle
 	public readonly ColorCone: Menu.ColorPicker
 	public readonly ColorIllusion: Menu.ColorPicker
@@ -31,6 +32,11 @@ export class MenuManager {
 		)
 
 		this.State = menu.AddToggle("State", true)
+		this.Glow = menu.AddToggle(
+			"Glow effect",
+			true,
+			"Glow effect useful e.g. on Chaos Knight\nany ill-distinguished illusions"
+		)
 		this.ColorIllusion = menu.AddColorPicker("Illusion", new Color(0, 0, 160))
 		this.ColorCone = menu.AddColorPicker(
 			"Clones",
@@ -75,7 +81,12 @@ export class MenuManager {
 		})
 	}
 
+	public GameChanged() {
+		this.sleeper.FullReset()
+	}
+
 	protected ResetSettings() {
+		this.Glow.value = this.Glow.defaultValue
 		this.Size.value = this.Size.defaultValue
 		this.State.value = this.State.defaultValue
 		this.Opacity.value = this.Opacity.defaultValue
@@ -90,6 +101,7 @@ export class MenuManager {
 	public OnChangeMenu(callback: () => void) {
 		this.Size.OnValue(() => callback())
 		this.Reset.OnValue(() => callback())
+		this.Glow.OnValue(() => callback())
 		this.State.OnValue(() => callback())
 		this.Opacity.OnValue(() => callback())
 		this.Distance.OnValue(() => callback())

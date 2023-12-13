@@ -1,4 +1,4 @@
-import "./translate"
+import "./translations"
 
 import {
 	Color,
@@ -92,9 +92,6 @@ const bootstrap = new (class CIllisions {
 	}
 
 	public LifeStateChanged(entity: Entity) {
-		if (entity.IsAlive) {
-			return
-		}
 		if (this.CanBeChangeEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
@@ -115,7 +112,7 @@ const bootstrap = new (class CIllisions {
 	}
 
 	public GameChanged() {
-		this.menu.sleeper.FullReset()
+		this.menu.GameChanged()
 	}
 
 	public UnitPropertyChanged(unit: Unit) {
@@ -141,6 +138,7 @@ const bootstrap = new (class CIllisions {
 			!unit.IsAlive ||
 			(unit instanceof SpiritBear && !unit.ShouldRespawn)
 		) {
+			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			return
 		}
@@ -151,6 +149,8 @@ const bootstrap = new (class CIllisions {
 		const color = unit.IsIllusion
 			? menu.ColorIllusion.SelectedColor
 			: menu.ColorCone.SelectedColor
+
+		unit.CustomGlowColor = menu.Glow.value ? color : undefined
 
 		if (unit.IsClone && !unit.IsIllusion) {
 			unit.CustomDrawColor = [color, RenderMode.TransColor]
