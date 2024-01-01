@@ -18,7 +18,7 @@ import {
 
 import { MenuManager } from "./menu"
 
-const bootstrap = new (class CIllisions {
+const bootstrap = new (class CIllusions {
 	private readonly units: Unit[] = []
 	private readonly menu = new MenuManager()
 
@@ -105,8 +105,7 @@ const bootstrap = new (class CIllisions {
 	}
 
 	public EntityDestroyed(entity: Entity) {
-		if (this.CanBeChangeEntity(entity)) {
-			this.units.remove(entity)
+		if (entity instanceof Unit && this.units.remove(entity)) {
 			this.UpdateUnits(entity)
 		}
 	}
@@ -189,9 +188,9 @@ EventsSDK.on("GameStarted", () => bootstrap.GameChanged())
 
 EventsSDK.on("EntityCreated", entity => bootstrap.EntityCreated(entity))
 
-EventsSDK.on("EntityDestroyed", entity => bootstrap.EntityCreated(entity))
+EventsSDK.on("EntityDestroyed", entity => bootstrap.EntityDestroyed(entity))
 
-EventsSDK.on("LifeStateChanged", entity => bootstrap.EntityCreated(entity))
+EventsSDK.on("LifeStateChanged", entity => bootstrap.LifeStateChanged(entity))
 
 EventsSDK.on("UnitPropertyChanged", unit => bootstrap.UnitPropertyChanged(unit))
 
