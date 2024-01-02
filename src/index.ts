@@ -85,7 +85,7 @@ const bootstrap = new (class CIllusions {
 			RendererSDK.OutlinedCircle(
 				position,
 				vectorSize,
-				unit.Color.Clone().SetA(opacity),
+				pColor.SetA(opacity),
 				GUIInfo.ScaleHeight(size) / 15
 			)
 		}
