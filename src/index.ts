@@ -128,7 +128,14 @@ const bootstrap = new (class CIllusions {
 
 	protected UpdateUnits(unit: Unit) {
 		const localHero = LocalPlayer?.Hero
-		if (localHero === undefined || !unit.IsEnemy()) {
+		if (localHero === undefined) {
+			return
+		}
+
+		if (!unit.IsEnemy() || unit.IsHiddenIllusion) {
+			unit.CustomGlowColor = undefined
+			unit.CustomDrawColor = undefined
+			this.units.remove(unit)
 			return
 		}
 
