@@ -8,6 +8,7 @@ import {
 	GameState,
 	GUIInfo,
 	Hero,
+	ImageData,
 	LocalPlayer,
 	RendererSDK,
 	RenderMode,
@@ -16,111 +17,101 @@ import {
 	Vector2
 } from "github.com/octarine-public/wrapper/index"
 
+import { EDrawType } from "./enums"
 import { MenuManager } from "./menu"
 
-const bootstrap = new (class CIllusions {
+new (class CIllusionsESP {
 	private readonly units: Unit[] = []
 	private readonly menu = new MenuManager()
+	private readonly icon = ImageData.Paths.AbilityIcons + "/modifier_illusion_png.vtex_c"
 
 	constructor() {
 		this.menu.OnChangeMenu(() => this.OnChangeMenu())
+
+		EventsSDK.on("Draw", this.Draw.bind(this))
+		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
+		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
+		EventsSDK.on("LifeStateChanged", this.LifeStateChanged.bind(this))
+		EventsSDK.on("UnitPropertyChanged", this.UnitPropertyChanged.bind(this))
+		EventsSDK.on("EntityTeamChanged", this.EntityTeamChanged.bind(this))
 	}
 
 	private get state() {
 		return this.menu.State.value
 	}
 
-	public Draw() {
-		if (!this.state || !this.menu.HiddenIllusion.value) {
-			return
+	private get canDraw() {
+		if (!GameState.IsConnected || !this.state) {
+			return false
 		}
-		if (!GameState.IsConnected || !this.units.length) {
-			return
+		if (!this.menu.HiddenIllusion.value) {
+			return false
 		}
-		if (GameState.UIState !== DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME) {
+		return GameState.UIState === DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
+	}
+
+	protected Draw() {
+		if (!this.canDraw) {
 			return
 		}
 
 		const menu = this.menu
-		const size = menu.Size.value
+		const menuSize = menu.Size.value
+
 		const opacity = (menu.Opacity.value / 100) * 255
 		const vectorSize = new Vector2(
-			GUIInfo.ScaleWidth(size),
-			GUIInfo.ScaleHeight(size)
+			GUIInfo.ScaleWidth(menuSize),
+			GUIInfo.ScaleHeight(menuSize)
 		)
 
 		for (let index = this.units.length - 1; index > -1; index--) {
 			const unit = this.units[index]
-			if (!unit.IsAlive || !unit.IsIllusion || !unit.IsVisible) {
+			if (!unit.IsAlive || !unit.IsIllusion) {
 				continue
 			}
-
+			if (!unit.IsVisible || unit.IsStrongIllusion) {
+				continue
+			}
 			const w2s = RendererSDK.WorldToScreen(unit.Position)
 			if (w2s === undefined) {
 				continue
 			}
-
-			const pColor = unit.Color.Clone()
+			const pColor = unit.Color.Clone() // player color
 			const position = w2s.Subtract(vectorSize.DivideScalar(2))
-
-			if (menu.DrawType.SelectedID === 1) {
-				const image = "panorama/images/spellicons/modifier_illusion_png.vtex_c"
-				RendererSDK.Image(
-					image,
-					position,
-					0,
-					vectorSize,
-					Color.White.SetA(opacity)
-				)
-				RendererSDK.OutlinedCircle(
-					position,
-					vectorSize,
-					pColor.SetA(opacity),
-					GUIInfo.ScaleHeight(size) / 15
-				)
+			if (menu.DrawType.SelectedID === EDrawType.Images) {
+				this.drawImage(position, vectorSize, pColor, menuSize, opacity)
 				continue
 			}
-
-			RendererSDK.FilledCircle(position, vectorSize, Color.Yellow.SetA(opacity))
-			RendererSDK.OutlinedCircle(
-				position,
-				vectorSize,
-				pColor.SetA(opacity),
-				GUIInfo.ScaleHeight(size) / 15
-			)
+			this.drawCircle(position, vectorSize, pColor, menuSize, opacity)
 		}
 	}
 
-	public LifeStateChanged(entity: Entity) {
+	protected LifeStateChanged(entity: Entity) {
 		if (this.CanBeChangeEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
 	}
 
-	public EntityCreated(entity: Entity) {
+	protected EntityCreated(entity: Entity) {
 		if (this.CanBeChangeEntity(entity)) {
 			this.units.push(entity)
 			this.UpdateUnits(entity)
 		}
 	}
 
-	public EntityDestroyed(entity: Entity) {
+	protected EntityDestroyed(entity: Entity) {
 		if (entity instanceof Unit && this.units.remove(entity)) {
 			this.UpdateUnits(entity)
 		}
 	}
 
-	public GameChanged() {
-		this.menu.GameChanged()
-	}
-
-	public UnitPropertyChanged(unit: Unit) {
+	protected UnitPropertyChanged(unit: Unit) {
 		if (this.CanBeChangeEntity(unit)) {
 			this.UpdateUnits(unit)
 		}
 	}
 
-	public EntityTeamChanged(entity: Entity) {
+	protected EntityTeamChanged(entity: Entity) {
 		if (this.CanBeChangeEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
@@ -150,8 +141,8 @@ const bootstrap = new (class CIllusions {
 		}
 
 		const menu = this.menu
-		const maxDistance = menu.Distance.value
-		const hiddenIllusion = menu.HiddenIllusion.value
+		const menuDistance = menu.Distance.value
+
 		const color = unit.IsIllusion
 			? menu.ColorIllusion.SelectedColor
 			: menu.ColorCone.SelectedColor
@@ -163,13 +154,12 @@ const bootstrap = new (class CIllusions {
 			return
 		}
 
-		unit.CustomDrawColor = hiddenIllusion
-			? [
-					color,
-					localHero.Distance(unit) <= maxDistance
-						? RenderMode.None
-						: RenderMode.Normal
-				]
+		const distance = localHero.Distance2D(unit)
+		const rednerType = distance <= menuDistance ? RenderMode.None : RenderMode.Normal
+		const isHiddenIllusion = menu.HiddenIllusion.value && !unit.IsStrongIllusion
+
+		unit.CustomDrawColor = isHiddenIllusion
+			? [color, rednerType]
 			: [color, RenderMode.TransColor]
 	}
 
@@ -185,20 +175,36 @@ const bootstrap = new (class CIllusions {
 			this.UpdateUnits(this.units[index])
 		}
 	}
+
+	private drawImage(
+		position: Vector2,
+		vecSize: Vector2,
+		pColor: Color,
+		menuSize = 1,
+		opacity = 255
+	) {
+		RendererSDK.Image(this.icon, position, 0, vecSize, Color.White.SetA(opacity))
+		RendererSDK.OutlinedCircle(
+			position,
+			vecSize,
+			pColor.SetA(opacity),
+			GUIInfo.ScaleHeight(menuSize) / 15
+		)
+	}
+
+	private drawCircle(
+		position: Vector2,
+		vecSize: Vector2,
+		pColor: Color,
+		menuSize = 1,
+		opacity = 255
+	) {
+		RendererSDK.FilledCircle(position, vecSize, Color.Yellow.SetA(opacity))
+		RendererSDK.OutlinedCircle(
+			position,
+			vecSize,
+			pColor.SetA(opacity),
+			GUIInfo.ScaleHeight(menuSize) / 15
+		)
+	}
 })()
-
-EventsSDK.on("Draw", () => bootstrap.Draw())
-
-EventsSDK.on("GameEnded", () => bootstrap.GameChanged())
-
-EventsSDK.on("GameStarted", () => bootstrap.GameChanged())
-
-EventsSDK.on("EntityCreated", entity => bootstrap.EntityCreated(entity))
-
-EventsSDK.on("EntityDestroyed", entity => bootstrap.EntityDestroyed(entity))
-
-EventsSDK.on("LifeStateChanged", entity => bootstrap.LifeStateChanged(entity))
-
-EventsSDK.on("UnitPropertyChanged", unit => bootstrap.UnitPropertyChanged(unit))
-
-EventsSDK.on("EntityTeamChanged", entity => bootstrap.EntityTeamChanged(entity))
