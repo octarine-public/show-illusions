@@ -12,5 +12,8 @@
 	"Show Illusions": "顯示幻覺",
 	"Clones": "克隆",
 	"Setting up invisible illusions": "建立無形的幻想",
-	"The distance from you to the illusion\nat which the illusion becomes invisible": "從你到幻覺變得不可見的幻覺的距離"
+	"Default": "預設",
+	"Hidden": "隱藏",
+	"Only color": "只顯示顏色",
+	"Illusions type": "幻想類型"
 }

@@ -20,6 +20,8 @@ import {
 import { EDrawType } from "./enums"
 import { MenuManager } from "./menu"
 
+declare function SetUnitType(customEntityID: number, unitType: number): void
+
 new (class CIllusionsESP {
 	private readonly units: Unit[] = []
 	private readonly menu = new MenuManager()
@@ -44,7 +46,7 @@ new (class CIllusionsESP {
 		if (!GameState.IsConnected || !this.state) {
 			return false
 		}
-		if (!this.menu.HiddenIllusion.value) {
+		if (this.menu.IllusionType.SelectedID !== 1) {
 			return false
 		}
 		return GameState.UIState === DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
@@ -100,8 +102,9 @@ new (class CIllusionsESP {
 	}
 
 	protected EntityDestroyed(entity: Entity) {
-		if (entity instanceof Unit && this.units.remove(entity)) {
+		if (entity instanceof Unit) {
 			this.UpdateUnits(entity)
+			this.units.remove(entity)
 		}
 	}
 
@@ -123,7 +126,7 @@ new (class CIllusionsESP {
 			return
 		}
 
-		if (!unit.IsEnemy() || unit.IsHiddenIllusion) {
+		if (!unit.IsValid || !unit.IsEnemy() || unit.IsHiddenIllusion) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			this.units.remove(unit)
@@ -141,26 +144,34 @@ new (class CIllusionsESP {
 		}
 
 		const menu = this.menu
-		const menuDistance = menu.Distance.value
-
 		const color = unit.IsIllusion
-			? menu.ColorIllusion.SelectedColor
-			: menu.ColorCone.SelectedColor
+			? menu.Color.SelectedColor
+			: menu.ColorClone.SelectedColor
 
 		unit.CustomGlowColor = menu.Glow.value ? color : undefined
 
 		if (unit.IsClone && !unit.IsIllusion) {
 			unit.CustomDrawColor = [color, RenderMode.TransColor]
+			this.setUnitType(unit, true)
 			return
 		}
-
-		const distance = localHero.Distance2D(unit)
-		const rednerType = distance <= menuDistance ? RenderMode.None : RenderMode.Normal
-		const isHiddenIllusion = menu.HiddenIllusion.value && !unit.IsStrongIllusion
-
-		unit.CustomDrawColor = isHiddenIllusion
-			? [color, rednerType]
-			: [color, RenderMode.TransColor]
+		const illusionType = menu.IllusionType.SelectedID
+		switch (illusionType) {
+			case 1:
+			case 2: {
+				const isHiddenIllusion = illusionType === 1 && !unit.IsStrongIllusion
+				unit.CustomDrawColor = isHiddenIllusion
+					? [color, RenderMode.None]
+					: [color, RenderMode.TransColor]
+				this.setUnitType(unit, illusionType === 2)
+				break
+			}
+			default: {
+				unit.CustomDrawColor = [color, RenderMode.TransColor]
+				this.setUnitType(unit)
+				break
+			}
+		}
 	}
 
 	protected CanBeChangeEntity(entity: Entity): entity is Hero | SpiritBear {
@@ -205,6 +216,13 @@ new (class CIllusionsESP {
 			vecSize,
 			pColor.SetA(opacity),
 			GUIInfo.ScaleHeight(menuSize) / 15
+		)
+	}
+
+	private setUnitType(unit: Unit, onlyColor = false) {
+		SetUnitType(
+			unit.CustomNativeID,
+			unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 0
 		)
 	}
 })()

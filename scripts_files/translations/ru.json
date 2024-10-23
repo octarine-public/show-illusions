@@ -7,7 +7,6 @@
 	"Circle": "Круг",
 	"Images": "Изображение",
 	"Reset": "Сбросить",
-	"Hide illusions": "Невидимые иллюзии",
 	"Settings": "Настройки",
 	"Show Illusions": "Отображение иллюзий",
 	"Setting up invisible illusions": "Настройка невидимых иллюзий",
@@ -16,5 +15,8 @@
 	"Glow effect":  "Эффект свечения",
 	"Glow effect useful e.g. on Chaos Knight\nany ill-distinguished illusions": "Эффект свечения полезен, например. на Chaos Knight\nили любые малозаметные иллюзии",
 	"Clones color (e.x Meepo, Vengeful spirit)": "Цвет клонов (пр. Meepo, Vengeful spirit)",
-	"The distance from you to the illusion\nat which the illusion becomes invisible": "Дистанция от вас до иллюзии\nпри котором иллюзия станет невидимой"
+	"Default": "По умолчанию",
+	"Hidden": "Скрытые",
+	"Only color": "Только покраска",
+	"Illusions type": "Тип иллюзий"
 }
