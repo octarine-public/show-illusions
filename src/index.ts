@@ -222,7 +222,7 @@ new (class CIllusionsESP {
 	private setUnitType(unit: Unit, onlyColor = false) {
 		SetUnitType(
 			unit.CustomNativeID,
-			unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 0
+			unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 1152
 		)
 	}
 })()
