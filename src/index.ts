@@ -20,7 +20,7 @@ import {
 import { EDrawType } from "./enums"
 import { MenuManager } from "./menu"
 
-declare function SetUnitType(customEntityID: number, unitType: number): void
+// declare function SetUnitType(customEntityID: number, unitType: number): void
 
 new (class CIllusionsESP {
 	private readonly units: Unit[] = []
@@ -219,10 +219,11 @@ new (class CIllusionsESP {
 		)
 	}
 
-	private setUnitType(unit: Unit, onlyColor = false) {
-		SetUnitType(
-			unit.CustomNativeID,
-			unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 1152
-		)
+	private setUnitType(_unit: Unit, _onlyColor = false) {
+		// TODO
+		// SetUnitType(
+		// 	unit.CustomNativeID,
+		// 	unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 1152
+		// )
 	}
 })()
