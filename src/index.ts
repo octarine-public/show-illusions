@@ -126,7 +126,7 @@ new (class CIllusionsESP {
 			return
 		}
 
-		if (!unit.IsValid || !unit.IsEnemy() || unit.IsHiddenIllusion) {
+		if (!this.isValidIllusion(unit)) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			this.units.remove(unit)
@@ -225,5 +225,15 @@ new (class CIllusionsESP {
 		// 	unit.CustomNativeID,
 		// 	unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 1152
 		// )
+	}
+
+	private isValidIllusion(unit: Unit) {
+		if (!unit.IsValid || !unit.IsEnemy()) {
+			return false
+		}
+		if (!unit.IsIllusion && !unit.IsClone) {
+			return false
+		}
+		return !unit.IsHiddenIllusion
 	}
 })()
