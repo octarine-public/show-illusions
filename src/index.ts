@@ -43,17 +43,14 @@ new (class CIllusionsESP {
 	}
 
 	private get canDraw() {
-		if (!GameState.IsConnected || !this.state) {
-			return false
-		}
-		if (this.menu.IllusionType.SelectedID !== 1) {
-			return false
-		}
-		return GameState.UIState === DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
+		return (
+			this.menu.IllusionType.SelectedID === 1 &&
+			GameState.UIState === DOTAGameUIState.DOTA_GAME_UI_DOTA_INGAME
+		)
 	}
 
 	protected Draw() {
-		if (!this.canDraw) {
+		if (!GameState.IsConnected || !this.state || !this.canDraw) {
 			return
 		}
 
@@ -89,13 +86,13 @@ new (class CIllusionsESP {
 	}
 
 	protected LifeStateChanged(entity: Entity) {
-		if (this.CanBeChangeEntity(entity)) {
+		if (this.canBeUpdateEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
 	}
 
 	protected EntityCreated(entity: Entity) {
-		if (this.CanBeChangeEntity(entity)) {
+		if (this.canBeUpdateEntity(entity)) {
 			this.units.push(entity)
 			this.UpdateUnits(entity)
 		}
@@ -109,13 +106,13 @@ new (class CIllusionsESP {
 	}
 
 	protected UnitPropertyChanged(unit: Unit) {
-		if (this.CanBeChangeEntity(unit)) {
+		if (this.canBeUpdateEntity(unit)) {
 			this.UpdateUnits(unit)
 		}
 	}
 
 	protected EntityTeamChanged(entity: Entity) {
-		if (this.CanBeChangeEntity(entity)) {
+		if (this.canBeUpdateEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
 	}
@@ -126,7 +123,7 @@ new (class CIllusionsESP {
 			return
 		}
 
-		if (!this.isValidIllusion(unit)) {
+		if (this.canBeRemove(unit)) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			this.units.remove(unit)
@@ -172,13 +169,6 @@ new (class CIllusionsESP {
 				break
 			}
 		}
-	}
-
-	protected CanBeChangeEntity(entity: Entity): entity is Hero | SpiritBear {
-		return (
-			(entity instanceof Hero || entity instanceof SpiritBear) &&
-			(entity.IsIllusion || entity.IsClone)
-		)
 	}
 
 	protected OnChangeMenu() {
@@ -227,13 +217,17 @@ new (class CIllusionsESP {
 		// )
 	}
 
-	private isValidIllusion(unit: Unit) {
-		if (!unit.IsValid || !unit.IsEnemy()) {
+	private canBeRemove(unit: Unit) {
+		return !unit.IsValid || !unit.IsEnemy() || (!unit.IsIllusion && !unit.IsClone)
+	}
+
+	private canBeUpdateEntity(entity: Entity): entity is Hero | SpiritBear {
+		if (!(entity instanceof Unit)) {
 			return false
 		}
-		if (!unit.IsIllusion && !unit.IsClone) {
-			return false
-		}
-		return !unit.IsHiddenIllusion
+		return (
+			(entity.IsHero || entity.IsSpiritBear) &&
+			(entity.IsIllusion || entity.IsClone)
+		)
 	}
 })()
