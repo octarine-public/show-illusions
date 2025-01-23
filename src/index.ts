@@ -8,8 +8,9 @@ import {
 	GameState,
 	GUIInfo,
 	Hero,
-	ImageData,
 	LocalPlayer,
+	modifierstate,
+	PathData,
 	RendererSDK,
 	RenderMode,
 	SpiritBear,
@@ -20,12 +21,13 @@ import {
 import { EDrawType } from "./enums"
 import { MenuManager } from "./menu"
 
-// declare function SetUnitType(customEntityID: number, unitType: number): void
+declare function SetUnitType(customEntityID: number, unitType: number): void
 
 new (class CIllusionsESP {
 	private readonly units: Unit[] = []
+	private readonly unitsIDs: number[] = []
 	private readonly menu = new MenuManager()
-	private readonly icon = ImageData.Paths.AbilityIcons + "/modifier_illusion_png.vtex_c"
+	private readonly icon = PathData.AbilityImagePath + "/modifier_illusion_png.vtex_c"
 
 	constructor() {
 		this.menu.OnChangeMenu(() => this.OnChangeMenu())
@@ -36,6 +38,7 @@ new (class CIllusionsESP {
 		EventsSDK.on("LifeStateChanged", this.LifeStateChanged.bind(this))
 		EventsSDK.on("UnitPropertyChanged", this.UnitPropertyChanged.bind(this))
 		EventsSDK.on("EntityTeamChanged", this.EntityTeamChanged.bind(this))
+		EventsSDK.on("EntityVisibleChanged", this.EntityVisibleChanged.bind(this))
 	}
 
 	private get state() {
@@ -89,6 +92,13 @@ new (class CIllusionsESP {
 		if (this.canBeUpdateEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
+		if (!this.canBeUpdateEntity(entity) || entity.IsAlive) {
+			return
+		}
+		if (this.unitsIDs.some(id => id === entity.CustomNativeID)) {
+			// fix original type
+			this.setUnitType(entity, true)
+		}
 	}
 
 	protected EntityCreated(entity: Entity) {
@@ -102,6 +112,7 @@ new (class CIllusionsESP {
 		if (entity instanceof Unit) {
 			this.UpdateUnits(entity)
 			this.units.remove(entity)
+			this.unitsIDs.remove(entity.CustomNativeID)
 		}
 	}
 
@@ -117,9 +128,18 @@ new (class CIllusionsESP {
 		}
 	}
 
+	protected EntityVisibleChanged(entity: Entity) {
+		if (!entity.IsVisible) {
+			return
+		}
+		if (this.canBeUpdateEntity(entity)) {
+			this.UpdateUnits(entity)
+		}
+	}
+
 	protected UpdateUnits(unit: Unit) {
 		const localHero = LocalPlayer?.Hero
-		if (localHero === undefined) {
+		if (localHero === undefined || !this.isValidUnitState(unit)) {
 			return
 		}
 
@@ -130,11 +150,7 @@ new (class CIllusionsESP {
 			return
 		}
 
-		if (
-			!this.state ||
-			!unit.IsAlive ||
-			(unit instanceof SpiritBear && !unit.ShouldRespawn)
-		) {
+		if (!this.state || (unit instanceof SpiritBear && !unit.ShouldRespawn)) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			return
@@ -209,12 +225,19 @@ new (class CIllusionsESP {
 		)
 	}
 
-	private setUnitType(_unit: Unit, _onlyColor = false) {
-		// TODO
-		// SetUnitType(
-		// 	unit.CustomNativeID,
-		// 	unit.IsStrongIllusion || unit.IsClone || onlyColor ? 1 : 1152
-		// )
+	private setUnitType(unit: Unit, useDefault = false) {
+		const customID = unit.CustomNativeID
+		if (useDefault && this.unitsIDs.some(id => id === customID)) {
+			SetUnitType(customID, 1)
+			this.unitsIDs.remove(customID)
+			return
+		}
+		if (!this.isValidUnitState(unit) || unit.IsStrongIllusion || unit.IsClone) {
+			return
+		}
+		const option = useDefault ? 1 : 1152
+		SetUnitType(customID, option)
+		this.unitsIDs.push(customID)
 	}
 
 	private canBeRemove(unit: Unit) {
@@ -229,5 +252,17 @@ new (class CIllusionsESP {
 			(entity.IsHero || entity.IsSpiritBear) &&
 			(entity.IsIllusion || entity.IsClone)
 		)
+	}
+	private isValidUnitState(unit: Unit) {
+		if (!unit.IsValid || !unit.IsAlive || unit.IsInvulnerable) {
+			return false
+		}
+		if (unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_OUT_OF_GAME)) {
+			return false
+		}
+		if (unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_UNSELECTABLE)) {
+			return false
+		}
+		return true
 	}
 })()

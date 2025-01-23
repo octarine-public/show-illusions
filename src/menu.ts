@@ -1,4 +1,4 @@
-import { Color, ImageData, Menu } from "github.com/octarine-public/wrapper/index"
+import { Color, Menu, PathData } from "github.com/octarine-public/wrapper/index"
 
 export class MenuManager {
 	public readonly Glow: Menu.Toggle
@@ -15,7 +15,7 @@ export class MenuManager {
 	private readonly hIllusionTree: Menu.Node
 	private readonly typeArr = ["Circle", "Images"]
 
-	private readonly icon = ImageData.Paths.AbilityIcons + "/modifier_illusion_png.vtex_c"
+	private readonly icon = PathData.AbilityImagePath + "/modifier_illusion_png.vtex_c"
 
 	constructor() {
 		const entry = Menu.AddEntry("Visual")
@@ -36,7 +36,7 @@ export class MenuManager {
 
 		this.IllusionType = menu.AddDropdown("Illusions type", [
 			"Default",
-			"Hidden",
+			"Hidden (+FPS)",
 			"Only color"
 		])
 

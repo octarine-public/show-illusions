@@ -16,7 +16,7 @@
 	"Glow effect useful e.g. on Chaos Knight\nany ill-distinguished illusions": "Эффект свечения полезен, например. на Chaos Knight\nили любые малозаметные иллюзии",
 	"Clones color (e.x Meepo, Vengeful spirit)": "Цвет клонов (пр. Meepo, Vengeful spirit)",
 	"Default": "По умолчанию",
-	"Hidden": "Скрытые",
 	"Only color": "Только покраска",
-	"Illusions type": "Тип иллюзий"
+	"Illusions type": "Тип иллюзий",
+	"Hidden (+FPS)": "Скрытые (+FPS)"
 }
