@@ -36,8 +36,7 @@ export class MenuManager {
 
 		this.IllusionType = menu.AddDropdown("Illusions type", [
 			"Default",
-			"Hidden (+FPS)",
-			"Only color"
+			"Hidden (+FPS)"
 		])
 
 		this.hIllusionTree = menu.AddNode(

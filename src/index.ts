@@ -14,6 +14,7 @@ import {
 	RendererSDK,
 	RenderMode,
 	SpiritBear,
+	TaskManager,
 	Unit,
 	Vector2
 } from "github.com/octarine-public/wrapper/index"
@@ -21,11 +22,10 @@ import {
 import { EDrawType } from "./enums"
 import { MenuManager } from "./menu"
 
-declare function SetUnitType(customEntityID: number, unitType: number): void
+declare function SetIllusionClientSide(customEntityID: number, state: boolean): void
 
 new (class CIllusionsESP {
 	private readonly units: Unit[] = []
-	private readonly unitsIDs: number[] = []
 	private readonly menu = new MenuManager()
 	private readonly icon = PathData.AbilityImagePath + "/modifier_illusion_png.vtex_c"
 
@@ -92,13 +92,6 @@ new (class CIllusionsESP {
 		if (this.canBeUpdateEntity(entity)) {
 			this.UpdateUnits(entity)
 		}
-		if (!this.canBeUpdateEntity(entity) || entity.IsAlive) {
-			return
-		}
-		if (this.unitsIDs.some(id => id === entity.CustomNativeID)) {
-			// fix original type
-			this.setUnitType(entity, true)
-		}
 	}
 
 	protected EntityCreated(entity: Entity) {
@@ -112,7 +105,6 @@ new (class CIllusionsESP {
 		if (entity instanceof Unit) {
 			this.UpdateUnits(entity)
 			this.units.remove(entity)
-			this.unitsIDs.remove(entity.CustomNativeID)
 		}
 	}
 
@@ -142,14 +134,12 @@ new (class CIllusionsESP {
 		if (localHero === undefined || !this.isValidUnitState(unit)) {
 			return
 		}
-
 		if (this.canBeRemove(unit)) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
 			this.units.remove(unit)
 			return
 		}
-
 		if (!this.state || (unit instanceof SpiritBear && !unit.ShouldRespawn)) {
 			unit.CustomGlowColor = undefined
 			unit.CustomDrawColor = undefined
@@ -165,31 +155,30 @@ new (class CIllusionsESP {
 
 		if (unit.IsClone && !unit.IsIllusion) {
 			unit.CustomDrawColor = [color, RenderMode.TransColor]
-			this.setUnitType(unit, true)
+			this.setClientIllusion(unit, false)
 			return
 		}
 		const illusionType = menu.IllusionType.SelectedID
 		switch (illusionType) {
-			case 1:
-			case 2: {
-				const isHiddenIllusion = illusionType === 1 && !unit.IsStrongIllusion
-				unit.CustomDrawColor = isHiddenIllusion
+			case 1: {
+				const isSuperIllusion = unit.IsStrongIllusion || unit.IsClone
+				this.setClientIllusion(unit, !isSuperIllusion)
+				unit.CustomDrawColor = !isSuperIllusion
 					? [color, RenderMode.None]
 					: [color, RenderMode.TransColor]
-				this.setUnitType(unit, illusionType === 2)
 				break
 			}
 			default: {
 				unit.CustomDrawColor = [color, RenderMode.TransColor]
-				this.setUnitType(unit)
+				this.setClientIllusion(unit, true)
 				break
 			}
 		}
 	}
 
 	protected OnChangeMenu() {
-		for (let index = this.units.length - 1; index > -1; index--) {
-			this.UpdateUnits(this.units[index])
+		for (let i = this.units.length - 1; i > -1; i--) {
+			this.UpdateUnits(this.units[i])
 		}
 	}
 
@@ -225,19 +214,18 @@ new (class CIllusionsESP {
 		)
 	}
 
-	private setUnitType(unit: Unit, useDefault = false) {
-		const customID = unit.CustomNativeID
-		if (useDefault && this.unitsIDs.some(id => id === customID)) {
-			SetUnitType(customID, 1)
-			this.unitsIDs.remove(customID)
+	private setClientIllusion(unit: Unit, state: boolean) {
+		if ((globalThis as any).SetIllusionClientSide === undefined) {
 			return
 		}
-		if (!this.isValidUnitState(unit) || unit.IsStrongIllusion || unit.IsClone) {
-			return
-		}
-		const option = useDefault ? 1 : 1152
-		SetUnitType(customID, option)
-		this.unitsIDs.push(customID)
+		TaskManager.Begin(() => {
+			if (unit.IsStrongIllusion || unit.IsClone) {
+				return
+			}
+			if (this.isValidUnitState(unit)) {
+				SetIllusionClientSide(unit.CustomNativeID, state)
+			}
+		})
 	}
 
 	private canBeRemove(unit: Unit) {
