@@ -39,6 +39,7 @@ new (class CIllusionsESP {
 		EventsSDK.on("UnitPropertyChanged", this.UnitPropertyChanged.bind(this))
 		EventsSDK.on("EntityTeamChanged", this.EntityTeamChanged.bind(this))
 		EventsSDK.on("EntityVisibleChanged", this.EntityVisibleChanged.bind(this))
+		EventsSDK.on("UnitStateChanged", this.UnitStateChanged.bind(this))
 	}
 
 	private get state() {
@@ -129,6 +130,12 @@ new (class CIllusionsESP {
 		}
 	}
 
+	protected UnitStateChanged(unit: Unit) {
+		if (this.canBeUpdateEntity(unit)) {
+			this.UpdateUnits(unit)
+		}
+	}
+
 	protected UpdateUnits(unit: Unit) {
 		const localHero = LocalPlayer?.Hero
 		if (localHero === undefined || !this.isValidUnitState(unit)) {
@@ -215,14 +222,12 @@ new (class CIllusionsESP {
 	}
 
 	private setClientIllusion(unit: Unit, state: boolean) {
-		if ((globalThis as any).SetIllusionClientSide === undefined) {
-			return
-		}
 		TaskManager.Begin(() => {
 			if (unit.IsStrongIllusion || unit.IsClone) {
 				return
 			}
 			if (this.isValidUnitState(unit)) {
+				console.log(unit.CustomNativeID, state)
 				SetIllusionClientSide(unit.CustomNativeID, state)
 			}
 		})
@@ -242,15 +247,12 @@ new (class CIllusionsESP {
 		)
 	}
 	private isValidUnitState(unit: Unit) {
-		if (!unit.IsValid || !unit.IsAlive || unit.IsInvulnerable) {
+		if (!unit.IsValid || !unit.IsAlive) {
 			return false
 		}
-		if (unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_OUT_OF_GAME)) {
-			return false
-		}
-		if (unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_UNSELECTABLE)) {
-			return false
-		}
-		return true
+		return (
+			!unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_UNSELECTABLE) &&
+			!unit.IsUnitStateFlagSet(modifierstate.MODIFIER_STATE_OUT_OF_GAME)
+		)
 	}
 })()
