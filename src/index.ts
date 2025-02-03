@@ -227,7 +227,6 @@ new (class CIllusionsESP {
 				return
 			}
 			if (this.isValidUnitState(unit)) {
-				console.log(unit.CustomNativeID, state)
 				SetIllusionClientSide(unit.CustomNativeID, state)
 			}
 		})
@@ -247,7 +246,7 @@ new (class CIllusionsESP {
 		)
 	}
 	private isValidUnitState(unit: Unit) {
-		if (!unit.IsValid || !unit.IsAlive) {
+		if (!unit.IsValid || !unit.IsAlive || unit.IsInvulnerable) {
 			return false
 		}
 		return (
