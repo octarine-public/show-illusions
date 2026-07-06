@@ -1,6 +1,7 @@
 import "./translations"
 
 import {
+	AnchorKind,
 	Color,
 	DOTAGameUIState,
 	Entity,
@@ -32,7 +33,7 @@ new (class CIllusionsESP {
 	constructor() {
 		this.menu.OnChangeMenu(() => this.OnChangeMenu())
 
-		EventsSDK.on("Draw", this.Draw.bind(this))
+		EventsSDK.on("Draw2D", this.Draw.bind(this))
 		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
 		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
 		EventsSDK.on("LifeStateChanged", this.LifeStateChanged.bind(this))
@@ -75,17 +76,23 @@ new (class CIllusionsESP {
 			if (!unit.IsVisible || unit.IsStrongIllusion) {
 				continue
 			}
-			const w2s = RendererSDK.WorldToScreen(unit.Position)
-			if (w2s === undefined) {
+			if (RendererSDK.WorldToScreen(unit.Position) === undefined) {
 				continue
 			}
 			const pColor = unit.Color.Clone() // player color
-			const position = w2s.Subtract(vectorSize.DivideScalar(2))
-			if (menu.DrawType.SelectedID === EDrawType.Images) {
-				this.drawImage(position, vectorSize, pColor, menuSize, opacity)
-				continue
-			}
-			this.drawCircle(position, vectorSize, pColor, menuSize, opacity)
+			const position = vectorSize.DivideScalar(-2)
+			RendererSDK.DrawEntityRelative(
+				unit.Index,
+				AnchorKind.Origin,
+				() => (unit.IsValid ? RendererSDK.WorldToScreen(unit.Position) : undefined),
+				() => {
+					if (menu.DrawType.SelectedID === EDrawType.Images) {
+						this.drawImage(position, vectorSize, pColor, menuSize, opacity)
+					} else {
+						this.drawCircle(position, vectorSize, pColor, menuSize, opacity)
+					}
+				}
+			)
 		}
 	}
 
@@ -187,6 +194,7 @@ new (class CIllusionsESP {
 		for (let i = this.units.length - 1; i > -1; i--) {
 			this.UpdateUnits(this.units[i])
 		}
+		RendererSDK.InvalidateDraw2D()
 	}
 
 	private drawImage(
