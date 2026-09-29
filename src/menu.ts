@@ -1,4 +1,4 @@
-import { Color, Menu, PathData } from "github.com/octarine-public/wrapper/index"
+import { IllusionIcons } from "./icons"
 
 export class MenuManager {
 	public readonly Glow: Menu.Toggle
@@ -15,50 +15,60 @@ export class MenuManager {
 	private readonly hIllusionTree: Menu.Node
 	private readonly typeArr = ["Circle", "Images"]
 
-	private readonly icon = PathData.AbilityImagePath + "/modifier_illusion_png.vtex_c"
-
 	constructor() {
 		const entry = Menu.AddEntry("Visual")
-		const menu = entry.AddNode("Show Illusions", this.icon, undefined, 0)
+		const menu = entry.AddNode("Show Illusions", IllusionIcons.Page)
+		menu.SortNodes = false
 
 		this.State = menu.AddToggle("State", true)
+		this.State.IconPath = IllusionIcons.State
+		menu.HeaderControl = this.State
+		menu.Gate = this.State
+
 		this.Glow = menu.AddToggle(
 			"Glow effect",
 			true,
 			"Glow effect useful e.g. on Chaos Knight\nany ill-distinguished illusions"
 		)
+		this.Glow.IconPath = IllusionIcons.Glow
+
 		this.Color = menu.AddColorPicker("Illusion", new Color(0, 0, 160))
+		this.Color.IconPath = IllusionIcons.Illusion
 		this.ColorClone = menu.AddColorPicker(
 			"Clones",
 			new Color(161, 0, 255),
 			"Clones color (e.x Meepo, Vengeful spirit)"
 		)
+		this.ColorClone.IconPath = IllusionIcons.Clones
 
 		this.IllusionType = menu.AddDropdown("Illusions type", [
 			"Default",
 			"Hidden (+FPS)"
 		])
+		this.IllusionType.IconPath = IllusionIcons.Type
 
 		this.hIllusionTree = menu.AddNode(
 			"Settings",
-			"menu/icons/settings.svg",
+			IllusionIcons.Settings,
 			"Setting up invisible illusions"
 		)
 		this.Size = this.hIllusionTree.AddSlider("Size", 33, 30, 200)
+		this.Size.IconPath = IllusionIcons.Size
 		this.Opacity = this.hIllusionTree.AddSlider("Opacity", 80, 10, 100)
+		this.Opacity.Suffix = "%"
+		this.Opacity.IconPath = IllusionIcons.Opacity
 		this.DrawType = this.hIllusionTree.AddDropdown("Draw type", this.typeArr, 1)
+		this.DrawType.IconPath = IllusionIcons.DrawType
 
+		this.hIllusionTree.IsHidden = this.IllusionType.SelectedID !== 1
 		this.IllusionType.OnValue(
 			call => (this.hIllusionTree.IsHidden = call.SelectedID !== 1)
 		)
 	}
 
 	public OnChangeMenu(callback: () => void) {
-		this.Size.OnValue(callback)
 		this.Glow.OnValue(callback)
 		this.State.OnValue(callback)
-		this.Opacity.OnValue(callback)
-		this.DrawType.OnValue(callback)
 		this.Color.OnValue(callback)
 		this.ColorClone.OnValue(callback)
 		this.IllusionType.OnValue(callback)

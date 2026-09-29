@@ -1,39 +1,20 @@
 import "./translations"
 
-import {
-	AnchorKind,
-	Color,
-	DOTAGameUIState,
-	Entity,
-	EventsSDK,
-	GameState,
-	GUIInfo,
-	Hero,
-	LocalPlayer,
-	modifierstate,
-	PathData,
-	RendererSDK,
-	RenderMode,
-	SpiritBear,
-	TaskManager,
-	Unit,
-	Vector2
-} from "github.com/octarine-public/wrapper/index"
-
-import { EDrawType } from "./enums"
+import { IllusionGUI } from "./gui"
 import { MenuManager } from "./menu"
 
+/** The host's own switch that makes the client draw a unit as an illusion. */
 declare function SetIllusionClientSide(customEntityID: number, state: boolean): void
 
 new (class CIllusionsESP {
 	private readonly units: Unit[] = []
 	private readonly menu = new MenuManager()
-	private readonly icon = PathData.AbilityImagePath + "/modifier_illusion_png.vtex_c"
+	private readonly gui = new IllusionGUI(this.menu)
 
 	constructor() {
 		this.menu.OnChangeMenu(() => this.OnChangeMenu())
 
-		EventsSDK.on("Draw2D", this.Draw.bind(this))
+		EventsSDK.on("Draw", this.Draw.bind(this))
 		EventsSDK.on("EntityCreated", this.EntityCreated.bind(this))
 		EventsSDK.on("EntityDestroyed", this.EntityDestroyed.bind(this))
 		EventsSDK.on("LifeStateChanged", this.LifeStateChanged.bind(this))
@@ -59,40 +40,16 @@ new (class CIllusionsESP {
 			return
 		}
 
-		const menu = this.menu
-		const menuSize = menu.Size.value
-
-		const opacity = (menu.Opacity.value / 100) * 255
-		const vectorSize = new Vector2(
-			GUIInfo.ScaleWidth(menuSize),
-			GUIInfo.ScaleHeight(menuSize)
-		)
-
+		this.gui.BeginFrame()
 		for (let index = this.units.length - 1; index > -1; index--) {
 			const unit = this.units[index]
-			if (!unit.IsAlive || !unit.IsIllusion) {
+			if (!unit.IsValid || !unit.IsAlive || !unit.IsIllusion) {
 				continue
 			}
 			if (!unit.IsVisible || unit.IsStrongIllusion) {
 				continue
 			}
-			if (RendererSDK.WorldToScreen(unit.Position) === undefined) {
-				continue
-			}
-			const pColor = unit.Color.Clone() // player color
-			const position = vectorSize.DivideScalar(-2)
-			RendererSDK.DrawEntityRelative(
-				unit.Index,
-				AnchorKind.Origin,
-				() => (unit.IsValid ? RendererSDK.WorldToScreen(unit.Position) : undefined),
-				() => {
-					if (menu.DrawType.SelectedID === EDrawType.Images) {
-						this.drawImage(position, vectorSize, pColor, menuSize, opacity)
-					} else {
-						this.drawCircle(position, vectorSize, pColor, menuSize, opacity)
-					}
-				}
-			)
+			this.gui.Draw(unit)
 		}
 	}
 
@@ -194,39 +151,6 @@ new (class CIllusionsESP {
 		for (let i = this.units.length - 1; i > -1; i--) {
 			this.UpdateUnits(this.units[i])
 		}
-		RendererSDK.InvalidateDraw2D()
-	}
-
-	private drawImage(
-		position: Vector2,
-		vecSize: Vector2,
-		pColor: Color,
-		menuSize = 1,
-		opacity = 255
-	) {
-		RendererSDK.Image(this.icon, position, 0, vecSize, Color.White.SetA(opacity))
-		RendererSDK.OutlinedCircle(
-			position,
-			vecSize,
-			pColor.SetA(opacity),
-			GUIInfo.ScaleHeight(menuSize) / 15
-		)
-	}
-
-	private drawCircle(
-		position: Vector2,
-		vecSize: Vector2,
-		pColor: Color,
-		menuSize = 1,
-		opacity = 255
-	) {
-		RendererSDK.FilledCircle(position, vecSize, Color.Yellow.SetA(opacity))
-		RendererSDK.OutlinedCircle(
-			position,
-			vecSize,
-			pColor.SetA(opacity),
-			GUIInfo.ScaleHeight(menuSize) / 15
-		)
 	}
 
 	private setClientIllusion(unit: Unit, state: boolean) {

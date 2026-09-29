@@ -1,7 +1,7 @@
 {
+	"name": "show-illusions",
 	"version": "3.0.0",
 	"main": "src/index.ts",
-	"name": "show-illusions",
 	"description": "Show Illusions",
 	"author": "SicdeX",
 	"devDependencies": {
@@ -21,8 +21,8 @@
 	"scripts": {
 		"check-types": "npx tsc",
 		"check-types-watch": "npx tsc --watch",
-		"upgrade-pack": "yarn upgrade-interactive --latest",
 		"check-circular": "npx madge --circular src/index.ts",
+		"upgrade-pack": "yarn upgrade-interactive --latest",
 		"lint": "eslint -c .eslintrc.json --ext .ts --fix ."
 	},
 	"license": "GPL-3.0-or-later",
@@ -30,5 +30,12 @@
 		"type": "git",
 		"directory": "/",
 		"url": "https://github.com/octarine-public/show-illusions.git"
-	}
+	},
+	"engines": {
+		"node": ">=18"
+	},
+	"octarineBundle": true,
+	"octarineMinimize": true,
+	"octarineObfuscate": true,
+	"octarineTreeShaking": true
 }
