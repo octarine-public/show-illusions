@@ -154,10 +154,17 @@ declare namespace MenuSDK {
 		customPage?: () => React.ReactNode
 		backAction?: () => boolean
 	}
+	/** A button a note carries at its end, which a click anywhere on the note presses too. */
+	interface DescriptionAction {
+		/** The button's label, a localization key. */
+		readonly label: string
+		readonly run: () => void
+	}
 	interface DescriptionEntry extends EntryCommon {
 		readonly kind: "description"
 		selected: boolean
 		header?: boolean
+		action?: DescriptionAction
 	}
 	/** How a hotkey drives its entry: apply on every press, or follow the key while it is held. */
 	type HotkeyMode = "toggle" | "hold"
@@ -188,6 +195,8 @@ declare namespace MenuSDK {
 		mode: HotkeyMode
 		/** When this hotkey appears in the on-screen hotkeys panel. */
 		visibility: HotkeyVisibility
+		/** Whether this hotkey blocks its key from reaching the game. Off by default. */
+		claimsKey: boolean
 	}
 	/** Which side of its threshold a logic rule holds its value on. */
 	type LogicWhen = "after" | "before"
@@ -355,9 +364,8 @@ declare namespace MenuSDK {
 		active: boolean
 		activatesInMenu: boolean
 		/**
-		 * Whether a press this bind answers is taken from the game. On by default: a bind is
-		 * usually put on a key precisely so the game stops seeing it. A bind that shadows one of
-		 * the game's own - a scoreboard on Tab - turns it off, and both act on the same press.
+		 * Whether a press this bind answers is taken from the game. Off by default so the
+		 * menu action and the game's action can both respond to the same press.
 		 */
 		claimsKey: boolean
 		/**

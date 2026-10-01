@@ -88,6 +88,9 @@ declare namespace MenuSDK {
 		/** "toggle" applies the value on every press, "hold" drives it only while the key is down. */
 		public get Mode(): HotkeyMode
 		public set Mode(value: HotkeyMode)
+		/** Whether this hotkey blocks game input. Off by default; saved with the hotkey. */
+		public get ClaimsKey(): boolean
+		public set ClaimsKey(value: boolean)
 		/**
 		 * Value the hotkey drives the entry to while active. A slider's value is
 		 * clamped and rounded like the slider itself; dropdown and multiselect
@@ -102,6 +105,11 @@ declare namespace MenuSDK {
 		 * apart in a listing.
 		 */
 		public get ValueName(): string
+		/**
+		 * {@link ValueName} in the menu's language: the slider's suffix, the dropdown's option and
+		 * the multiselect's options translated the way the menu shows them.
+		 */
+		public get LocalizedValueName(): string
 		/** When this hotkey appears in the on-screen hotkeys panel. */
 		public get Visibility(): HotkeyVisibility
 		public set Visibility(value: HotkeyVisibility)
@@ -435,13 +443,11 @@ declare namespace MenuSDK {
 		public get ActivatesInMenu(): boolean
 		public set ActivatesInMenu(value: boolean)
 		/**
-		 * Whether a press this bind answers is taken from the game. On by default: a bind is
-		 * usually put on a key precisely so the game stops seeing it. Turn it off for a bind that
-		 * shadows one of the game's own, so both act on the same press.
+		 * Whether a press this bind answers is taken from the game. Off by default; enable it
+		 * to reserve this key for the menu action. Saved with the bind.
 		 * @example
-		 * // a scoreboard on Tab, alongside the game's
-		 * this.HoldKey = tree.AddKeybind("Hold Key", "Tab")
-		 * this.HoldKey.ClaimsKey = false
+		 * this.HoldKey = tree.AddKeybind("Hold Key", "F3")
+		 * this.HoldKey.ClaimsKey = true
 		 */
 		public get ClaimsKey(): boolean
 		public set ClaimsKey(value: boolean)
@@ -604,6 +610,14 @@ declare namespace MenuSDK {
 	class ShortDescription extends Handle<DescriptionEntry> {
 		public get Selected(): boolean
 		public set Selected(value: boolean)
+		/**
+		 * Puts a button at the end of the note and makes the whole row press it: for a note that
+		 * says what is missing and can set it right on the spot. `undefined` takes the button away.
+		 * @example
+		 * const note = node.AddShortDescription("Required humanizer")
+		 * note.SetAction("Enable", () => Humanizer.RequestEnable())
+		 */
+		public SetAction(label: Nullable<string>, run?: () => void): ShortDescription
 	}
 	class ImageSelector extends Handle<ImagesEntry> {
 		public get Variant(): ImageVariant
